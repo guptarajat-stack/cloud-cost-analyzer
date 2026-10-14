@@ -1,0 +1,45 @@
+# GCP Cost Overview Dashboard (auto-generated)
+
+type: canvas
+display_name: "GCP Cost Overview"
+
+defaults:
+  time_range: P30D
+
+rows:
+  - items:
+      - kpi_grid:
+          measures:
+            - total_cost
+            - record_count
+            - total_usage
+            - cost_per_unit
+          metrics_view: gcp_cost_metrics
+        width: 12
+    height: 200px
+  - items:
+      - leaderboard:
+          dimensions:
+            - service__description
+          measures:
+            - total_cost
+          num_rows: 10
+          metrics_view: gcp_cost_metrics
+          title: Top Services
+        width: 6
+      - leaderboard:
+          dimensions:
+            - project__id
+          measures:
+            - total_cost
+          num_rows: 10
+          metrics_view: gcp_cost_metrics
+          title: Top Projects
+        width: 6
+    height: 300px
+
+time_ranges: [ P7D, P30D, P3M, P6M, P12M ]
+filters:
+  enable: true
+
+theme: theme

@@ -1,0 +1,63 @@
+# put your configuration values here
+
+[runtime]
+log_level="ERROR"  # ERROR hides warning as stripe has many tables that with potentially no data and it might flow the log
+# use the dlthub_telemetry setting to enable/disable anonymous usage data reporting, see https://dlthub.com/docs/reference/telemetry
+dlthub_telemetry = false
+
+# Filesystem destination configuration - writes parquet files for Rill (local development)
+[destination.filesystem]
+bucket_url = "viz_rill/data"  # Output directory for parquet files
+
+[destination.filesystem.loader_file_format]
+file_format = "parquet"
+
+# ClickHouse destination configuration (production - GitHub Actions)
+# Credentials are in secrets.toml
+[destination.clickhouse]
+database = "dlt"
+dataset_name_prefix = ""  # No prefix for clean dataset names
+
+# MotherDuck destination configuration
+[destination.motherduck.credentials]
+database = "cloud_cost_analytics"
+
+[sources.filesystem]
+local_dir = "/home/sspaeti/Documents/datalake/dlt-stage" # fill this in!
+bucket_url = "https://s3.us-west-1.amazonaws.com" # fill this in!
+
+# Pipeline configuration
+[pipeline]
+pipeline_name = "cloud_cost_analytics"
+
+# AWS CUR configuration
+[sources.aws_cur]
+bucket_url = "s3://cost-analysis-demo-sspaeti"
+file_glob = "cur/CUR-export-test/data/**/*.parquet"
+table_name = "cur_export_test_00001"
+dataset_name = "aws_costs"
+initial_start_date = "2025-09-01"  # Only load data from this date onwards (filters by file modification date)
+input_data_dir = "viz_rill/data/aws_costs/cur_export_test_00001"  # Directory where AWS parquet files are loaded
+normalized_data_dir = "viz_rill/data/aws_costs"  # Directory for normalized AWS data
+
+# GCP BigQuery billing export configuration
+[sources.gcp_billing]
+# project_id is read from secrets.toml (source.bigquery.credentials.project_id)
+# Uncomment below to override:
+# project_id = "testing-bigquery-220511"
+dataset = "billing_export"
+dataset_name = "gcp_costs"
+initial_start_date = "2025-09-01T00:00:00Z"  # Only load data from this date onwards (filters by export_time)
+# Update these table names to match your GCP billing export tables
+# Find them in BigQuery Console under your billing_export dataset
+table_names = [
+    "gcp_billing_export_resource_v1_014CCF_84D5DF_A43BC0",
+    "gcp_billing_export_v1_014CCF_84D5DF_A43BC0"
+]
+input_data_dir = "viz_rill/data/gcp_costs"  # Directory where GCP parquet files are loaded
+normalized_data_dir = "viz_rill/data/gcp_costs"  # Directory for normalized GCP data
+
+# Stripe configuration
+[sources.stripe]
+dataset_name = "stripe_costs"
+initial_start_date = "2025-09-01"  # Only load data from this date onwards (filters by created timestamp)
